@@ -1,0 +1,50 @@
+name: 'Helm Template'
+description: 'Render helm chart'
+inputs:
+  value_files:
+    description: 'Comma-separated list of values files'
+    required: true
+    default: 'values.yaml'
+  chart_path:
+    description: 'Parent directory of chart'
+    required: true
+    default: './'
+  run_diff:
+    description: 'Enable generation of a diff'
+    required: true
+    default: true
+  diff_ref:
+    description: 'Reference point for diff'
+    required: true
+    default: main
+runs:
+  using: "composite"
+  steps:
+    - uses: azure/setup-helm@v4.2.0
+
+    - name: Checkout code 
+      uses: actions/checkout@v4 
+      with: 
+        fetch-depth: 0
+
+    - name: Render helm template
+      run: helm template ${{ inputs.chart_path }}
+      shell: bash
+
+    - name: Checkout reference
+      if: ${{ inputs.run_diff }}
+      uses: actions/checkout@v4
+      with: 
+        fetch-depth: 0
+        ref: diff_ref
+
+    - name: Render reference helm template
+      if: ${{ inputs.run_diff }}
+      run: helm template ${{ inputs.chart_path }}
+      shell: bash
+
+    - name: Generate helm diff
+      if: ${{ inputs.run_diff }}
+      run: helm template ${{ inputs.chart_path }}
+      shell: bash
+
