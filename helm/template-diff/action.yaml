@@ -27,8 +27,14 @@ runs:
       with: 
         fetch-depth: 0
 
+    - name: Build values string
+      if: ${{ inputs.run_diff }}
+      id: values_string
+      run: echo "values=$(echo ${{ inputs.value_files }} | sed -E 's/([^,]+)/--values \1/g' | tr ',' ' ')" >> "$GITHUB_OUTPUT"
+      shell: bash
+
     - name: Render helm template
-      run: helm template ${{ inputs.chart_path }}
+      run: helm template ${{ inputs.chart_path }} ${{ steps.values_string.outputs.values }}
       shell: bash
 
     - name: Checkout reference
@@ -40,7 +46,7 @@ runs:
 
     - name: Render reference helm template
       if: ${{ inputs.run_diff }}
-      run: helm template ${{ inputs.chart_path }}
+      run: helm template ${{ inputs.chart_path }} ${{ steps.values_string.outputs.values }}
       shell: bash
 
     - name: Generate helm diff
