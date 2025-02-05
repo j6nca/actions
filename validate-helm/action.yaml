@@ -1,0 +1,50 @@
+name: 'Validate Helm'
+description: 'Helm validation tools'
+inputs:
+  diff:
+    description: 'Option to compute diff between helm template'
+    required: false
+    default: true
+  lint: 
+    description: 'Option to run helm lint'
+    required: false
+    default: true
+  path: 
+    description: 'Path of helm chart'
+    required: false
+    default: './'
+  template: 
+    description: 'Option to run helm template'
+    required: false
+    default: true
+  values:
+    description: 'comma separated list of values files relative to chart'
+    required: false
+    default: 'values.yaml'
+  version:
+    description: 'Helm version'
+    required: false
+    default: 'latest'
+outputs:
+  diff:
+    description: 'Helm template diff'
+runs:
+  using: "composite"
+  steps:
+    - uses: azure/setup-helm@v4.2.0
+      with:
+        version: ${{ inputs.version }}
+      id: install
+
+    - name: Build dependencies
+      run: helm dependency build
+
+    - name: Run helm lint
+      run: helm lint ${{ inputs.path }}
+    
+    - name: Render helm template 
+      run: helm template
+
+    - name: Generate helm diff
+      run: |
+        echo "Runnnig helm diff ..."
