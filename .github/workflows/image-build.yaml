@@ -4,15 +4,15 @@ run-name: Build and push container image by ${{ github.actor }}
 on:
   workflow_call:
     inputs:
-      checkout-ref:
+      ref:
         type: string
         required: false
         default: ""
-      checkout-repository:
+      repository:
         type: string
         required: false
         default: ""
-      checkout-fetch-depth:
+      fetch-depth:
         type: number
         required: false
         default: 1
@@ -33,7 +33,7 @@ jobs:
         with:
           repository: ${{ inputs.repository || github.repository }}
           ref: ${{ inputs.ref || github.ref_name }}
-          fetch-depth: ${{ inputs.checkout-fetch-depth }}
+          fetch-depth: ${{ inputs.fetch-depth }}
       - name: debug
         run: |
           pwd
