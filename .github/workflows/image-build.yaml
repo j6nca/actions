@@ -1,0 +1,39 @@
+name: Build and push container image to GHCR
+run-name: Build and push container image by ${{ github.actor }}
+
+on:
+  workflow_call:
+    inputs:
+      checkout-ref:
+        type: string
+        required: false
+        default: ""
+      checkout-repository:
+        type: string
+        required: false
+        default: ""
+      checkout-fetch-depth:
+        type: number
+        required: false
+        default: 1
+        description: "Fetch depth, defaults to 1 (shallow clone)."
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check:
+    name: Check if container image already exists
+    runs-on: ubuntu
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        id: checkout-for-sha
+        with:
+          repository: ${{ inputs.repository || github.repository }}
+          ref: ${{ inputs.ref || github.ref_name }}
+          fetch-depth: ${{ inputs.checkout-fetch-depth }}
+      - name: debug
+        run: |
+          pwd
